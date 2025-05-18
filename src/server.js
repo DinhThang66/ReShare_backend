@@ -7,6 +7,8 @@ import { connectDB } from './config/mongoDb.js'
 import authRoutes from './routes/auth.route.js'
 import userRoutes from './routes/user.route.js'
 import chatRoutes from './routes/chat.route.js'
+import postRoutes from './routes/post.route.js'
+import commentRoutes from './routes/comment.route.js'
 
 // App config
 const app = express()
@@ -27,6 +29,8 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes)
 app.use("/api/user", userRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/post", postRoutes)
+app.use("/api/comment", commentRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`)

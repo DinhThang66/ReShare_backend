@@ -12,8 +12,8 @@ export const register = async (req, res) => {
                 .json({ message: "Email already exists, please use a diffrent one" });
         }
 
-        const idx = Math.floor(Math.random() * 100) + 1; // generate a num between 1-100
-        const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
+        const idx = Math.floor(Math.random() * 100000);
+        const randomAvatar = `https://api.dicebear.com/7.x/thumbs/png?seed=${idx}&size=200`;
 
         const newUser = await User.create({
             email,
