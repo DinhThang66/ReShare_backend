@@ -7,9 +7,13 @@ import {
     getOutgoingFriendReqs,
     getRecommendedUsers,
     sendFriendRequest,
+    getUser
 } from "../controller/user.controller.js";
 
 const router = Router()
+
+router.get("/:id", getUser)
+
 // apply auth middleware to all routes
 router.use(protectRoute);   
 
