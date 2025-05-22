@@ -145,13 +145,10 @@ export const createPost = async (req, res) => {
                 .populate('createdBy', '_id firstName lastName profilePic');
 
             return res.status(201).json({
-                status: 'success',
-                data: {
-                    ...populatedPost.toObject(),
-                    commentsCount: 0,
-                    likesCount: 0,
-                    likedByCurrentUser: false
-                },
+                ...populatedPost.toObject(),
+                commentsCount: 0,
+                likesCount: 0,
+                likedByCurrentUser: false
             });
         }
 
