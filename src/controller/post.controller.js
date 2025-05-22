@@ -1,6 +1,7 @@
 import Post from '../models/Post.js'
+import cloudinary from '../config/cloudinary.js';
 
-export const createPost = async (req, res) => {
+export const createPostFromUrl = async (req, res) => {
     try{
         const { content, images} = req.body; //expect images to be an array of Urls
         const createdBy = req.user.id // auth users
@@ -102,5 +103,51 @@ export const togglePostLikes = async (req, res) => {
         res.json({likes:post.likes.length, liked:!liked});
     }catch (error){
         res.status(500).json({message:error.message});
+    }
+}
+
+export const createPost = async (req, res) => {
+    try {
+        const { content } = req.body;
+        const userId = req.user.id
+
+        const files = req.files;
+        let imageUrls = [];
+
+
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const result = await cloudinary.uploader.upload_stream(
+                    { resource_type: 'image' },  (error, result) => {
+                        if (error) {
+                            console.error('Upload error:', error);
+                            throw new Error('Upload failed');
+                        }
+                        imageUrls.push(result.secure_url);
+                        if (imageUrls.length === files.length) {
+                            savePost();
+                        }
+                    }).end(file.buffer); // gửi buffer lên Cloudinary
+            }
+        } else {
+            savePost(); // nếu không có ảnh, chỉ lưu text
+        }
+
+        async function savePost() {
+            const newPost = await Post.create({
+                content,
+                images: imageUrls,
+                createdBy: userId,
+            });
+
+            return res.status(201).json({
+                status: 'success',
+                data: newPost,
+            });
+        }
+
+    } catch (error) {
+        console.error('Error creating post:', error);
+        res.status(500).json({ message: 'Server error' });
     }
 }
