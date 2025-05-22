@@ -140,9 +140,13 @@ export const createPost = async (req, res) => {
                 createdBy: userId,
             });
 
+            // Populate thêm thông tin user
+            const populatedPost = await Post.findById(newPost._id)
+                .populate('createdBy', '_id firstName lastName profilePic');
+
             return res.status(201).json({
                 status: 'success',
-                data: newPost,
+                data: populatedPost,
             });
         }
 
