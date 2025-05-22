@@ -146,7 +146,12 @@ export const createPost = async (req, res) => {
 
             return res.status(201).json({
                 status: 'success',
-                data: populatedPost,
+                data: {
+                    ...populatedPost.toObject(),
+                    commentsCount: 0,
+                    likesCount: 0,
+                    likedByCurrentUser: false
+                },
             });
         }
 
