@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema({
     pickupInstructions: { type: String },
     location_lat: { type: Number, required: true },
     location_lng: { type: Number, required: true },
-    type: { type: String, enum: ['free', 'want', 'reduced', 'paid'], required: true },
+    type: { type: String, enum: ['free', 'wanted', 'reduced', 'paid'], required: true },
     productType: { type: String, enum: ['food', 'non-food'], required: true },
     originalPrice: { type: Number, min: 0, 
         required: function () { return this.type === 'reduced' || this.type === 'paid'; }
