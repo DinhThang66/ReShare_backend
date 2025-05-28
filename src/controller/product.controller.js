@@ -39,7 +39,13 @@ export const createProduct = async (req, res) => {
                 title, description,
                 images: imageUrls,
                 pickupTimes, pickupInstructions,
-                location_lat, location_lng,
+                location: {
+                    type: "Point",
+                    coordinates: [
+                        parseFloat(location_lng),
+                        parseFloat(location_lat)
+                    ]
+                },
                 type, productType,
                 originalPrice,
                 discountPercent,
@@ -71,27 +77,59 @@ export const getProduct = async (req, res) => {
 }
 export const getCategorizedProducts = async (req, res) => {
     try {
-        const [ freeFood, nonFood, reducedFood, want ] = await Promise.all([
-            Product.find({ type: "free", productType: "food" })
-                .sort({ createdAt: -1 })
-                .limit(20)
-                .populate("createdBy", "firstName lastName profilePic"),
+        const { lat, lng, radius } = req.query;
 
-            Product.find({ productType: "non-food" })
-                .sort({ createdAt: -1 })
-                .limit(20)
-                .populate("createdBy", "firstName lastName profilePic"),
+        const userLat = parseFloat(lat);
+        const userLng = parseFloat(lng);
+        const maxDistance = parseInt(radius) || 5000;
 
-            Product.find({ type: "reduced", productType: "food" })
-                .sort({ createdAt: -1 })
-                .limit(20)
-                .populate("createdBy", "firstName lastName profilePic"),
+        const locationFilter = {
+            location: {
+                $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: [userLng, userLat] // [lng, lat]
+                },
+                $maxDistance: maxDistance
+                }
+            }
+        };
 
-            Product.find({ type: "wanted" })
-                .sort({ createdAt: -1 })
-                .limit(20)
-                .populate("createdBy", "firstName lastName profilePic")
-        ])
+        const [freeFood, nonFood, reducedFood, want] = await Promise.all([
+      Product.find({
+        type: "free",
+        productType: "food",
+        ...locationFilter
+      })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate("createdBy", "firstName lastName profilePic"),
+
+        Product.find({
+            productType: "non-food",
+            ...locationFilter
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate("createdBy", "firstName lastName profilePic"),
+
+        Product.find({
+            type: "reduced",
+            productType: "food",
+            ...locationFilter
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate("createdBy", "firstName lastName profilePic"),
+
+        Product.find({
+            type: "wanted",
+            ...locationFilter
+        })
+            .sort({ createdAt: -1 })
+            .limit(20)
+            .populate("createdBy", "firstName lastName profilePic")
+        ]);
 
         res.status(200).json({ freeFood, nonFood, reducedFood, want });
     } catch (error) {

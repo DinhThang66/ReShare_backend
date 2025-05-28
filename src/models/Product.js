@@ -6,8 +6,10 @@ const productSchema = new mongoose.Schema({
     images: [{ type: String }],
     pickupTimes: { type: String, required: true },
     pickupInstructions: { type: String },
-    location_lat: { type: Number, required: true },
-    location_lng: { type: Number, required: true },
+    location: {
+        type: { type: String, enum: ['Point'], required: true},
+        coordinates: { type: [Number], required: true } // [lng, lat]
+    },
     type: { type: String, enum: ['free', 'wanted', 'reduced', 'paid'], required: true },
     productType: { type: String, enum: ['food', 'non-food'], required: true },
     originalPrice: { type: Number, min: 0, 
@@ -26,6 +28,8 @@ const productSchema = new mongoose.Schema({
         required: true
     }
 }, { timestamps: true })
+
+productSchema.index({ location: '2dsphere' });
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;
