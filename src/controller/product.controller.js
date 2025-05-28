@@ -1,0 +1,101 @@
+import Product from "../models/Product.js";
+import cloudinary from '../config/cloudinary.js';
+
+export const createProduct = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { 
+            title, description, pickupTimes, pickupInstructions,
+            location_lat, location_lng, type, productType, originalPrice, 
+            discountPercent, quantity, storeInfor 
+        } = req.body
+
+        const files = req.files;
+        let imageUrls = [];
+
+        if (files && files.length > 0) {
+            for (const file of files) {
+                // Upload từng ảnh sử dụng upload_stream để có URL
+                await cloudinary.uploader.upload_stream(
+                    { resource_type: 'image' },
+                    (error, result) => {
+                        if (error) {
+                            console.error("Upload error:", error);
+                            throw new Error("Upload failed");
+                        }
+                        imageUrls.push(result.secure_url);
+                        if (imageUrls.length === files.length) {
+                            saveProduct();
+                        }
+                    }
+                ).end(file.buffer);
+            }
+        } else {
+            await saveProduct();
+        }
+
+        async function saveProduct() {
+            const newProduct = await Product.create({
+                title, description,
+                images: imageUrls,
+                pickupTimes, pickupInstructions,
+                location_lat, location_lng,
+                type, productType,
+                originalPrice,
+                discountPercent,
+                quantity, storeInfor,
+                createdBy: userId
+            })
+            const populatedProduct = await Product.findById(newProduct._id)
+                .populate('createdBy', 'firstName lastName profilePic');
+            return res.status(201).json(populatedProduct);
+        }
+    } catch (error) {
+        console.error("Error creating product:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export const getProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id)
+            .populate('createdBy', 'firstName lastName profilePic');
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.status(200).json(product);
+    } catch (error) {
+        console.error("Error getting product:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+export const getCategorizedProducts = async (req, res) => {
+    try {
+        const [ freeFood, nonFood, reducedFood, want ] = await Promise.all([
+            Product.find({ type: "free", productType: "food" })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic"),
+
+            Product.find({ productType: "non-food" })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic"),
+
+            Product.find({ type: "reduced", productType: "food" })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic"),
+
+            Product.find({ type: "want" })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic")
+        ])
+
+        res.status(200).json({ freeFood, nonFood, reducedFood, want });
+    } catch (error) {
+        console.error("Error fetching categorized products:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
