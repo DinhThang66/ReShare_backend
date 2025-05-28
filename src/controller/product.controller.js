@@ -79,8 +79,8 @@ export const getCategorizedProducts = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
 
-        const userLat = parseFloat(lat);
-        const userLng = parseFloat(lng);
+        const userLat = parseFloat(lat) || 106.660172;
+        const userLng = parseFloat(lng) || 10.762622;
         const maxDistance = parseInt(radius) || 5000;
 
         const locationFilter = {
@@ -96,39 +96,39 @@ export const getCategorizedProducts = async (req, res) => {
         };
 
         const [freeFood, nonFood, reducedFood, want] = await Promise.all([
-      Product.find({
-        type: "free",
-        productType: "food",
-        ...locationFilter
-      })
-        .sort({ createdAt: -1 })
-        .limit(20)
-        .populate("createdBy", "firstName lastName profilePic"),
-
-        Product.find({
-            productType: "non-food",
-            ...locationFilter
-        })
+            Product.find({
+                type: "free",
+                productType: "food",
+                ...locationFilter
+            })
             .sort({ createdAt: -1 })
             .limit(20)
             .populate("createdBy", "firstName lastName profilePic"),
 
-        Product.find({
-            type: "reduced",
-            productType: "food",
-            ...locationFilter
-        })
-            .sort({ createdAt: -1 })
-            .limit(20)
-            .populate("createdBy", "firstName lastName profilePic"),
+            Product.find({
+                productType: "non-food",
+                ...locationFilter
+            })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic"),
 
-        Product.find({
-            type: "wanted",
-            ...locationFilter
-        })
-            .sort({ createdAt: -1 })
-            .limit(20)
-            .populate("createdBy", "firstName lastName profilePic")
+            Product.find({
+                type: "reduced",
+                productType: "food",
+                ...locationFilter
+            })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic"),
+
+            Product.find({
+                type: "wanted",
+                ...locationFilter
+            })
+                .sort({ createdAt: -1 })
+                .limit(20)
+                .populate("createdBy", "firstName lastName profilePic")
         ]);
 
         res.status(200).json({ freeFood, nonFood, reducedFood, want });
