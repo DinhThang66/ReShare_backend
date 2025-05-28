@@ -87,7 +87,7 @@ export const getCategorizedProducts = async (req, res) => {
                 .limit(20)
                 .populate("createdBy", "firstName lastName profilePic"),
 
-            Product.find({ type: "want" })
+            Product.find({ type: "wanted" })
                 .sort({ createdAt: -1 })
                 .limit(20)
                 .populate("createdBy", "firstName lastName profilePic")
