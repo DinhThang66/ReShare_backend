@@ -19,7 +19,7 @@ const productSchema = new mongoose.Schema({
     quantity: { type: Number, min: 1, default: 1,
         required: function () { return this.type === 'reduced'; }
     },
-    storeInfor: { type: String, required: function () { return this.type === 'reduced'; } },
+    storeInfo: { type: String, required: function () { return this.type === 'reduced'; } },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

@@ -7,7 +7,7 @@ export const createProduct = async (req, res) => {
         const { 
             title, description, pickupTimes, pickupInstructions,
             location_lat, location_lng, type, productType, originalPrice, 
-            discountPercent, quantity, storeInfor 
+            discountPercent, quantity, storeInfo 
         } = req.body
 
         const files = req.files;
@@ -43,7 +43,7 @@ export const createProduct = async (req, res) => {
                 type, productType,
                 originalPrice,
                 discountPercent,
-                quantity, storeInfor,
+                quantity, storeInfo,
                 createdBy: userId
             })
             const populatedProduct = await Product.findById(newProduct._id)
