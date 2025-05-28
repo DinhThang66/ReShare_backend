@@ -79,8 +79,8 @@ export const getCategorizedProducts = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
 
-        const userLat = parseFloat(lat) || 106.660172;
-        const userLng = parseFloat(lng) || 10.762622;
+        const userLat = parseFloat(lat) || 10.762622;
+        const userLng = parseFloat(lng) || 106.660172;
         const maxDistance = parseInt(radius) || 5000;
 
         const locationFilter = {
