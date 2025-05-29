@@ -177,6 +177,7 @@ export const getCategorizedProducts = async (req, res) => {
                         createdAt: 1,
                         updatedAt: 1,
                         createdBy: {
+                            _id: "$createdBy._id",
                             firstName: "$createdBy.firstName",
                             lastName: "$createdBy.lastName",
                             profilePic: "$createdBy.profilePic"
@@ -185,7 +186,7 @@ export const getCategorizedProducts = async (req, res) => {
                 }
             ]);
         };
-        
+
 
         const [freeFood, nonFood, reducedFood, want] = await Promise.all([
             getCategory({ type: "free", productType: "food" }),
