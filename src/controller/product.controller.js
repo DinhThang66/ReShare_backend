@@ -75,6 +75,7 @@ export const getProduct = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
 export const getCategorizedProducts = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
@@ -202,3 +203,69 @@ export const getCategorizedProducts = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const getAllNearbyProducts = async (req, res) => {
+    try {
+        const { lat, lng, radius } = req.query;
+
+        const userLat = parseFloat(lat) || 21.005403;
+        const userLng = parseFloat(lng) || 105.843048;
+        const maxDistance = parseInt(radius) || 5000;
+        const maxResults = 15;
+
+        const products = await Product.aggregate([
+            {
+                $geoNear: {
+                    near: {
+                        type: "Point",
+                        coordinates: [userLng, userLat]
+                    },
+                    distanceField: "distance",
+                    maxDistance: maxDistance,
+                    spherical: true
+                }
+            },
+            { $sort: { createdAt: -1 } },
+            { $limit: maxResults },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "createdBy",
+                    foreignField: "_id",
+                    as: "createdBy"
+                }
+            },
+            { $unwind: "$createdBy" },
+            {
+                $project: {
+                    title: 1,
+                    description: 1,
+                    images: 1,
+                    distance: 1,
+                    location: 1,
+                    pickupTimes: 1,
+                    pickupInstructions: 1,
+                    originalPrice: 1,
+                    discountPercent: 1,
+                    quantity: 1,
+                    type: 1,
+                    productType: 1,
+                    storeInfo: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    createdBy: {
+                        _id: "$createdBy._id",
+                        firstName: "$createdBy.firstName",
+                        lastName: "$createdBy.lastName",
+                        profilePic: "$createdBy.profilePic"
+                    }
+                }
+            }
+        ]);
+
+        res.status(200).json({ products });
+    } catch (error) {
+        console.error("Error fetching nearby products:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
