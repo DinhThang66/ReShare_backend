@@ -185,6 +185,7 @@ export const getCategorizedProducts = async (req, res) => {
                 }
             ]);
         };
+        
 
         const [freeFood, nonFood, reducedFood, want] = await Promise.all([
             getCategory({ type: "free", productType: "food" }),
