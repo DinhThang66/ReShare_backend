@@ -204,7 +204,7 @@ export const getCategorizedProducts = async (req, res) => {
     }
 }
 
-export const getAllNearbyProducts = async (req, res) => {
+export const getNearbyProducts = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
 
