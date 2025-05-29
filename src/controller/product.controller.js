@@ -175,6 +175,7 @@ export const getCategorizedProducts = async (req, res) => {
                         productType: 1,
                         storeInfo: 1,
                         createdAt: 1,
+                        updatedAt: 1,
                         createdBy: {
                             firstName: "$createdBy.firstName",
                             lastName: "$createdBy.lastName",
