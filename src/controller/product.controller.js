@@ -79,10 +79,11 @@ export const getCategorizedProducts = async (req, res) => {
     try {
         const { lat, lng, radius } = req.query;
 
-        const userLat = parseFloat(lat) || 10.762622;
-        const userLng = parseFloat(lng) || 106.660172;
+        const userLat = parseFloat(lat) || 21.005403;
+        const userLng = parseFloat(lng) || 105.843048;
         const maxDistance = parseInt(radius) || 5000;
 
+        /*
         const locationFilter = {
             location: {
                 $near: {
@@ -130,6 +131,67 @@ export const getCategorizedProducts = async (req, res) => {
                 .limit(20)
                 .populate("createdBy", "firstName lastName profilePic")
         ]);
+        */
+
+        // Reusable aggregation function
+        const getCategory = async (typeFilter = {}, limit = 20) => {
+            return await Product.aggregate([
+                {
+                    $geoNear: {
+                        near: {
+                            type: "Point",
+                            coordinates: [userLng, userLat]
+                        },
+                        distanceField: "distance",
+                        maxDistance: maxDistance,
+                        spherical: true,
+                        query: typeFilter
+                    }
+                },
+                { $sort: { createdAt: -1 } },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: "users",
+                        localField: "createdBy",
+                        foreignField: "_id",
+                        as: "createdBy"
+                    }
+                },
+                { $unwind: "$createdBy" },
+                {
+                    $project: {
+                        title: 1,
+                        description: 1,
+                        images: 1,
+                        distance: 1,
+                        location: 1,
+                        pickupTimes: 1,
+                        pickupInstructions: 1,
+                        originalPrice: 1,
+                        discountPercent: 1,
+                        quantity: 1,
+                        type: 1,
+                        productType: 1,
+                        storeInfo: 1,
+                        createdAt: 1,
+                        createdBy: {
+                            firstName: "$createdBy.firstName",
+                            lastName: "$createdBy.lastName",
+                            profilePic: "$createdBy.profilePic"
+                        }
+                    }
+                }
+            ]);
+        };
+
+        const [freeFood, nonFood, reducedFood, want] = await Promise.all([
+            getCategory({ type: "free", productType: "food" }),
+            getCategory({ productType: "non-food" }),
+            getCategory({ type: "reduced", productType: "food" }),
+            getCategory({ type: "wanted" })
+        ]);
+
 
         res.status(200).json({ freeFood, nonFood, reducedFood, want });
     } catch (error) {
