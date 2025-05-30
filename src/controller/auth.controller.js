@@ -69,8 +69,11 @@ export const login = async (req, res) => {
         });
 
         const { password: _, ...userWithoutPassword } = user._doc;
+        
+        //Check nếu user đã có vị trí hay chưa
+        const hasLocation = user.latitude != null && user.longitude != null;
 
-        res.status(200).json({ success: true, user: userWithoutPassword, token });
+        res.status(200).json({ success: true, user: userWithoutPassword, token, hasLocation });
     } catch (error) {
         console.log("Error in login controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });

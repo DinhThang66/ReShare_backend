@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true, minlength: 6 },
     profilePic: { type: String, default: "" },
     location: { type: String, default: "" },
+    latitude: { type: Number, default: null },
+    longitude: { type: Number, default: null },
     isOnboarded: { type: Boolean, default: false },
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
