@@ -70,8 +70,8 @@ export const login = async (req, res) => {
 
         const { password: _, ...userWithoutPassword } = user._doc;
         
-        //Check nếu user đã có vị trí hay chưa
-        const hasLocation = user.latitude != null && user.longitude != null;
+        const hasLocation = Array.isArray(user?.location?.coordinates) &&
+                    user.location.coordinates.length === 2;
 
         res.status(200).json({ success: true, user: userWithoutPassword, token, hasLocation });
     } catch (error) {
@@ -87,4 +87,22 @@ export const logout = async (req, res) => {
 
 export const onboard = async (req, res) => {
     // edit
+}
+
+export const updateLocation = async(req, res) => {
+    const { latitude, longitude } = req.body;
+    try {
+        req.user.location = {
+            type: "Point",
+            coordinates: [longitude, latitude], // GeoJSON format: [lng, lat]
+        };
+
+        const updatedUser = await req.user.save();
+        res.status(200).json({
+            success: true,
+            user: updatedUser,
+        });
+    } catch (error) {
+        res.status(500).json({success: false, message: "Failed to update location.",})
+    }
 }

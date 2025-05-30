@@ -7,9 +7,10 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, minlength: 6 },
     profilePic: { type: String, default: "" },
-    location: { type: String, default: "" },
-    latitude: { type: Number, default: null },
-    longitude: { type: Number, default: null },
+    location: {
+        type: { type: String, enum: ["Point"], default: "Point" },
+        coordinates: { type: [Number], default: undefined }
+    },
     isOnboarded: { type: Boolean, default: false },
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
