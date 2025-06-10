@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     profilePic: { type: String, default: "" },
     location: {
         type: { type: String, enum: ["Point"], default: "Point" },
-        coordinates: { type: [Number], default: undefined }
+        coordinates: { type: [Number], default: undefined }         // longitude, longitude
     },
     radius: { type: Number, default: 3 },
     friends: [{

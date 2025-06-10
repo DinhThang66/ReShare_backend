@@ -78,11 +78,9 @@ export const getProduct = async (req, res) => {
 
 export const getCategorizedProducts = async (req, res) => {
     try {
-        const { lat, lng, radius } = req.query;
-
-        const userLat = parseFloat(lat) || 21.005403;
-        const userLng = parseFloat(lng) || 105.843048;
-        const maxDistance = parseInt(radius) || 5000;
+        const userLat = req.user.location.coordinates[1] || 21.005403;
+        const userLng = req.user.location.coordinates[0] || 105.843048;
+        const maxDistance = req.user.radius * 1000 || 3000;
 
         /*
         const locationFilter = {
