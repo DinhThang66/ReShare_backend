@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
         type: { type: String, enum: ["Point"], default: "Point" },
         coordinates: { type: [Number], default: undefined }
     },
-    isOnboarded: { type: Boolean, default: false },
+    radius: { type: Number, default: 3 },
     friends: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

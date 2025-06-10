@@ -90,12 +90,17 @@ export const onboard = async (req, res) => {
 }
 
 export const updateLocation = async(req, res) => {
-    const { latitude, longitude } = req.body;
+    const { latitude, longitude, radius } = req.body;
     try {
         req.user.location = {
             type: "Point",
             coordinates: [longitude, latitude], // GeoJSON format: [lng, lat]
         };
+
+        // Cập nhật radius nếu được cung cấp
+        if (typeof radius === "number" && radius > 0) {
+            req.user.radius = radius;
+        }
 
         const updatedUser = await req.user.save();
         res.status(200).json({
