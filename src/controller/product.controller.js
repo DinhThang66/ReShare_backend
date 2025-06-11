@@ -204,6 +204,8 @@ export const getCategorizedProducts = async (req, res) => {
 
 export const getNearbyProducts = async (req, res) => {
     try {
+        const searchQuery = req.query.q?.trim() || "";
+
         const userLat = req.user.location.coordinates[1] || 21.005403;
         const userLng = req.user.location.coordinates[0] || 105.843048;
         const maxDistance = req.user.radius * 1000 || 3000;
@@ -219,6 +221,11 @@ export const getNearbyProducts = async (req, res) => {
                     distanceField: "distance",
                     maxDistance: maxDistance,
                     spherical: true
+                }
+            },
+            {
+                 $match: {
+                    title: { $regex: searchQuery, $options: "i" } // case-insensitive
                 }
             },
             { $sort: { createdAt: -1 } },
