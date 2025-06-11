@@ -10,6 +10,7 @@ import chatRoutes from './routes/chat.route.js'
 import postRoutes from './routes/post.route.js'
 import commentRoutes from './routes/comment.route.js'
 import productRoutes from './routes/product.route.js'
+import requestRoutes from './routes/request.route.js'
 
 // App config
 const app = express()
@@ -33,7 +34,7 @@ app.use("/api/chat", chatRoutes)
 app.use("/api/post", postRoutes)
 app.use("/api/comment", commentRoutes)
 app.use("/api/product", productRoutes)
-
+app.use("/api/requests", requestRoutes)
 
 app.listen(PORT, () => {
     console.log(`Server is running on port: ${PORT}`)
