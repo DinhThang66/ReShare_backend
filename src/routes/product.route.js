@@ -5,7 +5,8 @@ import {
     createProduct,
     getProduct,
     getCategorizedProducts,
-    getNearbyProducts
+    getNearbyProducts,
+    getMyProducts
 } from "../controller/product.controller.js"
 
 const router = Router();
@@ -14,8 +15,10 @@ router.use(protectRoute);
 router.post("/", upload.array("images"), createProduct);
 router.get("/categorized", getCategorizedProducts);
 router.get("/", getNearbyProducts)
-router.get("/:id", getProduct)
+router.get('/mine', getMyProducts);
 
+
+router.get("/:id", getProduct)
 export default router;
 
 
