@@ -81,7 +81,12 @@ export const getReceivedRequests = async (req, res) => {
 
         // Find all requests for those products
         const requests = await Request.find({ productId: { $in: productIds } })
-            .populate({ path: 'productId' })
+            .populate({ path: 'productId',
+                populate: {
+                    path: 'createdBy',
+                    select: 'firstName lastName email profilePic location radius',
+                }
+            })
             .populate('requestedBy', 'firstName lastName email profilePic location radius');
 
         // Xử lý fallback location nếu bị lỗi hoặc rỗng
