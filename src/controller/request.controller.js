@@ -111,3 +111,26 @@ export const getReceivedRequests = async (req, res) => {
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
+export const updateRequestStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = ['accepted', 'rejected'];
+
+    if (!allowedStatuses.includes(status)) {
+        return res.status(400).json({ error: 'Invalid status value' });
+    }
+
+    try {
+        const result = await Request.findByIdAndUpdate(id, { status });
+
+        if (!result) {
+        return res.status(404).json({ error: 'Request not found' });
+        }
+
+        res.status(200).json({ message: 'Status updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+}
