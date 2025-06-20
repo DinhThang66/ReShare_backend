@@ -81,9 +81,26 @@ export const getReceivedRequests = async (req, res) => {
 
         // Find all requests for those products
         const requests = await Request.find({ productId: { $in: productIds } })
-        .populate({ path: 'productId' })
-        .populate('requestedBy', 'firstName lastName profilePic');
-        return res.status(200).json(requests);
+            .populate({ path: 'productId' })
+            .populate('requestedBy', 'firstName lastName email profilePic location radius');
+
+        // Xử lý fallback location nếu bị lỗi hoặc rỗng
+        const safeRequests = requests.map((request) => {
+            const requestedBy = request.productId?.requestedBy;
+            if (
+                requestedBy &&
+                (typeof requestedBy.location !== 'object' || !requestedBy.location?.coordinates)
+            ) {
+                requestedBy.location = {
+                    type: "Point",
+                    coordinates: [0.0, 0.0],
+                };
+            }
+
+            return request;
+        });
+
+        return res.status(200).json(safeRequests);
     } catch (error) {
         console.error("Error fetching received requests:", error);
         return res.status(500).json({ message: "Internal Server Error" });
