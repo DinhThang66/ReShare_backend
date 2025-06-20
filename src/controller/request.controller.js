@@ -37,3 +37,40 @@ export const createRequest = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getMyRequests = async (req, res) => {
+    try {
+        const userId = req.user.id; 
+        const requests = await Request.find({ requestedBy: userId })
+        .populate({
+            path: 'productId',
+            select: 'name images', 
+        });
+
+        return res.status(200).json(requests);
+    } catch (error) {
+        console.error("Error fetching user requests:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const getReceivedRequests = async (req, res) => {
+    try {
+        const userId = req.user.id; 
+        // Find all products owned by this user
+        const products = await Product.find({ createdBy: userId }).select('_id');
+        const productIds = products.map(prod => prod._id);
+
+        // Find all requests for those products
+        const requests = await Request.find({ productId: { $in: productIds } })
+        .populate({
+            path: 'productId',
+            select: 'name images', 
+        })
+        .populate('requestedBy', 'firstName lastName profilePic');
+        return res.status(200).json(requests);
+    } catch (error) {
+        console.error("Error fetching received requests:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
