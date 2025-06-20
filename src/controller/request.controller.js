@@ -42,10 +42,7 @@ export const getMyRequests = async (req, res) => {
     try {
         const userId = req.user.id; 
         const requests = await Request.find({ requestedBy: userId })
-        .populate({
-            path: 'productId',
-            select: 'name images', 
-        });
+        .populate({ path: 'productId' });
 
         return res.status(200).json(requests);
     } catch (error) {
@@ -63,10 +60,7 @@ export const getReceivedRequests = async (req, res) => {
 
         // Find all requests for those products
         const requests = await Request.find({ productId: { $in: productIds } })
-        .populate({
-            path: 'productId',
-            select: 'name images', 
-        })
+        .populate({ path: 'productId' })
         .populate('requestedBy', 'firstName lastName profilePic');
         return res.status(200).json(requests);
     } catch (error) {
