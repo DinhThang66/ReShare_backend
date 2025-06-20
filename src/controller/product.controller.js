@@ -5,10 +5,13 @@ export const createProduct = async (req, res) => {
     try {
         const userId = req.user.id;
         const { 
-            title, description, pickupTimes, pickupInstructions,
-            location_lat, location_lng, type, productType, originalPrice, 
+            title, description, pickupTimes, pickupInstructions
+            , type, productType, originalPrice, 
             discountPercent, quantity, storeInfo 
         } = req.body
+
+        const userLat = req.user.location.coordinates[1] || 21.005403;
+        const userLng = req.user.location.coordinates[0] || 105.843048;
 
         const files = req.files;
         let imageUrls = [];
@@ -42,8 +45,8 @@ export const createProduct = async (req, res) => {
                 location: {
                     type: "Point",
                     coordinates: [
-                        parseFloat(location_lng),
-                        parseFloat(location_lat)
+                        parseFloat(userLng),
+                        parseFloat(userLat)
                     ]
                 },
                 type, productType,
