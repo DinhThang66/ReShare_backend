@@ -46,14 +46,26 @@ export const getMyRequests = async (req, res) => {
             populate: {
                 path: 'createdBy',
                 select: 'firstName lastName email profilePic location radius',
-                 populate: {
-                    path: 'location',
-                    select: 'type coordinates'
-                }
             }
         });
 
-        return res.status(200).json(requests);
+        // Xử lý fallback location nếu bị lỗi hoặc rỗng
+        const safeRequests = requests.map((request) => {
+            const createdBy = request.productId?.createdBy;
+            if (
+                createdBy &&
+                (typeof createdBy.location !== 'object' || !createdBy.location?.coordinates)
+            ) {
+                createdBy.location = {
+                type: "Point",
+                coordinates: [0.0, 0.0],
+                };
+            }
+
+            return request;
+        });
+
+        return res.status(200).json(safeRequests);
     } catch (error) {
         console.error("Error fetching user requests:", error);
         return res.status(500).json({ message: "Internal Server Error" });
