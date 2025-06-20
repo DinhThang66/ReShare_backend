@@ -45,7 +45,11 @@ export const getMyRequests = async (req, res) => {
         .populate({ path: 'productId',
             populate: {
                 path: 'createdBy',
-                select: 'firstName lastName email profilePic location radius'
+                select: 'firstName lastName email profilePic location radius',
+                 populate: {
+                    path: 'location',
+                    select: 'type coordinates'
+                }
             }
         });
 
