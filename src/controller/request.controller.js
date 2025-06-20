@@ -42,7 +42,12 @@ export const getMyRequests = async (req, res) => {
     try {
         const userId = req.user.id; 
         const requests = await Request.find({ requestedBy: userId })
-        .populate({ path: 'productId' });
+        .populate({ path: 'productId',
+            populate: {
+                path: 'createdBy',
+                select: 'firstName lastName email profilePic location radius'
+            }
+        });
 
         return res.status(200).json(requests);
     } catch (error) {
